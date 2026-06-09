@@ -415,6 +415,72 @@
     .hint.success { color: #4ADE80; }
     .loading { color: var(--muted); font-size: 14px; }
 
+    /* ── BOTÃO PRONTO ─────────────────────────────────── */
+    .ready-wrap {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-ready {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+      padding: 13px 32px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: border-color var(--t), color var(--t), background var(--t);
+      letter-spacing: 0.3px;
+    }
+    .btn-ready:hover {
+      border-color: #4ADE80;
+      color: #4ADE80;
+      background: rgba(74,222,128,0.06);
+    }
+    .btn-ready:active { transform: scale(0.97); }
+    .ready-done {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      animation: fadeInUp 0.3s ease;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .ready-icon { font-size: 28px; line-height: 1; }
+    .ready-msg-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #4ADE80;
+    }
+    .ready-msg-sub {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .btn-ready-undo {
+      background: none;
+      border: none;
+      color: var(--dim);
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-top: 4px;
+      font-family: 'Inter', sans-serif;
+      transition: color var(--t);
+    }
+    .btn-ready-undo:hover { color: var(--muted); }
+
     /* ── RESPONSIVIDADE ───────────────────────────────── */
     @media (max-width: 520px) {
       body { padding: 0 10px 64px; }
@@ -487,6 +553,16 @@
   </div>
 
   <div class="hint" id="hint">Toque em um dia para marcar sua disponibilidade</div>
+
+  <div class="ready-wrap" id="readyWrap" style="display:none">
+    <button class="btn-ready" id="readyBtn" onclick="markReady()">Pronto, finalizei ✓</button>
+    <div class="ready-done" id="readyDone" style="display:none">
+      <div class="ready-icon">🎉</div>
+      <div class="ready-msg-title">Tudo certo!</div>
+      <div class="ready-msg-sub">Você já pode fechar esta página.</div>
+      <button class="btn-ready-undo" onclick="undoReady()">Preciso mudar algo</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -858,15 +934,38 @@
     document.getElementById('headerDot').style.background = getColor(currentUser);
     renderDOW();
     renderCalendar();
+    const readyWrap = document.getElementById('readyWrap');
+    readyWrap.style.display = 'flex';
+    if (sessionStorage.getItem('confra-ready') === '1') {
+      document.getElementById('readyBtn').style.display = 'none';
+      document.getElementById('readyDone').style.display = 'flex';
+    } else {
+      document.getElementById('readyBtn').style.display = 'block';
+      document.getElementById('readyDone').style.display = 'none';
+    }
+  }
+
+  function markReady() {
+    sessionStorage.setItem('confra-ready', '1');
+    document.getElementById('readyBtn').style.display = 'none';
+    document.getElementById('readyDone').style.display = 'flex';
+  }
+
+  function undoReady() {
+    sessionStorage.removeItem('confra-ready');
+    document.getElementById('readyDone').style.display = 'none';
+    document.getElementById('readyBtn').style.display = 'block';
   }
 
   function resetUser() {
     currentUser = '';
     selectedDay = null;
     sessionStorage.removeItem('confra-name');
+    sessionStorage.removeItem('confra-ready');
     document.getElementById('nameSection').style.display = 'block';
     document.getElementById('calendarWrap').style.display = 'none';
     document.getElementById('headerUser').style.display = 'none';
+    document.getElementById('readyWrap').style.display = 'none';
     document.getElementById('nameInput').value = '';
   }
 
