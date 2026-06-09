@@ -555,25 +555,48 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
-      padding: 8px 0;
-      animation: fadeInUp 0.3s ease;
+      gap: 16px;
+      width: 100%;
+      animation: fadeInUp 0.4s ease;
     }
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .ready-icon { font-size: 28px; line-height: 1; }
+    .ready-photo {
+      width: 100%;
+      max-width: 480px;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: block;
+    }
     .ready-msg-title {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      color: #4ADE80;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
     }
     .ready-msg-sub {
       font-size: 13px;
       color: var(--muted);
+      margin-top: -8px;
     }
+    .btn-close-tab {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 24px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: border-color var(--t), color var(--t);
+    }
+    .btn-close-tab:hover { border-color: #3A3F47; color: var(--text); }
     .btn-ready-undo {
       background: none;
       border: none;
@@ -581,7 +604,6 @@
       font-size: 11px;
       cursor: pointer;
       text-decoration: underline;
-      margin-top: 4px;
       font-family: 'Inter', sans-serif;
       transition: color var(--t);
     }
@@ -675,9 +697,10 @@
   <div class="ready-wrap" id="readyWrap" style="display:none">
     <button class="btn-ready" id="readyBtn" onclick="markReady()">Pronto, finalizei ✓</button>
     <div class="ready-done" id="readyDone" style="display:none">
-      <div class="ready-icon">🎉</div>
-      <div class="ready-msg-title">Tudo certo!</div>
-      <div class="ready-msg-sub">Você já pode fechar esta página.</div>
+      <img class="ready-photo" src="./foto.jpg" alt="Jardim do Éden" />
+      <div class="ready-msg-title">Até a confraternização!</div>
+      <div class="ready-msg-sub">Sua disponibilidade foi salva. Pode fechar esta página.</div>
+      <button class="btn-close-tab" onclick="closeTab()">Fechar aba</button>
       <button class="btn-ready-undo" onclick="undoReady()">Preciso mudar algo</button>
     </div>
   </div>
@@ -1145,6 +1168,14 @@
     sessionStorage.setItem('confra-ready', '1');
     document.getElementById('readyBtn').style.display = 'none';
     document.getElementById('readyDone').style.display = 'flex';
+  }
+
+  function closeTab() {
+    window.close();
+    // fallback: browsers só fecham abas abertas por JS
+    setTimeout(() => {
+      document.querySelector('.btn-close-tab').textContent = 'Use Ctrl+W para fechar';
+    }, 400);
   }
 
   function undoReady() {
