@@ -415,6 +415,112 @@
     .hint.success { color: #4ADE80; }
     .loading { color: var(--muted); font-size: 14px; }
 
+    /* ── MODAL RESULTADOS ────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 28px 24px 24px;
+      position: relative;
+    }
+    .modal-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: -0.3px;
+    }
+    .modal-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 14px;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--t), color var(--t);
+    }
+    .modal-close:hover { background: var(--border); color: var(--text); }
+    .result-section { margin-bottom: 24px; }
+    .result-section-title {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    .result-day-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-day-row:last-child { border-bottom: none; }
+    .result-day-label {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .result-day-names {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+      max-width: 220px;
+    }
+    .result-count-badge {
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-radius: 20px;
+      padding: 2px 8px;
+      min-width: 28px;
+      text-align: center;
+    }
+    .result-person-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .result-person-row:last-child { border-bottom: none; }
+    .result-person-name { flex: 1; font-weight: 500; }
+    .result-person-days { font-size: 12px; color: var(--muted); }
+    .btn-ver-resultados {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 5px 12px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all var(--t);
+    }
+    .btn-ver-resultados:hover { border-color: #3A3F47; color: var(--text); }
+
     /* ── BOTÃO PRONTO ─────────────────────────────────── */
     .ready-wrap {
       width: 100%;
@@ -506,10 +612,22 @@
     <div class="header-eyebrow">confraternização Jardim do Éden</div>
     <div class="header-title">Quando todos<br>estarão na cidade?</div>
   </div>
-  <div class="header-user" id="headerUser" style="display:none">
-    <div class="user-dot" id="headerDot"></div>
-    <span id="headerName"></span>
-    <button class="btn-link" onclick="resetUser()">trocar</button>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <button class="btn-ver-resultados" id="btnResultados" style="display:none" onclick="openResultados()">Ver resultados</button>
+    <div class="header-user" id="headerUser" style="display:none">
+      <div class="user-dot" id="headerDot"></div>
+      <span id="headerName"></span>
+      <button class="btn-link" onclick="resetUser()">trocar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RESULTADOS -->
+<div class="modal-overlay" id="modalResultados" onclick="closeResultadosOutside(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeResultados()">✕</button>
+    <div class="modal-title">Resultados completos</div>
+    <div id="modalContent"></div>
   </div>
 </div>
 
@@ -934,6 +1052,7 @@
     document.getElementById('headerDot').style.background = getColor(currentUser);
     renderDOW();
     renderCalendar();
+    document.getElementById('btnResultados').style.display = 'block';
     const readyWrap = document.getElementById('readyWrap');
     readyWrap.style.display = 'flex';
     if (sessionStorage.getItem('confra-ready') === '1') {
@@ -943,6 +1062,79 @@
       document.getElementById('readyBtn').style.display = 'block';
       document.getElementById('readyDone').style.display = 'none';
     }
+  }
+
+  function openResultados() {
+    const modal = document.getElementById('modalResultados');
+    const content = document.getElementById('modalContent');
+
+    // Agrupa dias por contagem (todos os meses)
+    const dayCounts = {};
+    Object.entries(globalData).forEach(([nome, v]) => {
+      v.days.forEach(ds => {
+        if (!dayCounts[ds]) dayCounts[ds] = [];
+        dayCounts[ds].push(nome);
+      });
+    });
+
+    const sorted = Object.entries(dayCounts)
+      .map(([ds, people]) => {
+        const [y, m, d] = ds.split('-');
+        const dateObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+        return { ds, people, label: `${parseInt(d)} de ${MONTHS[parseInt(m)-1]} (${DOWS[dateObj.getDay()]})` };
+      })
+      .sort((a, b) => b.people.length - a.people.length);
+
+    // Lista de pessoas com seus dias
+    const personDays = {};
+    Object.entries(globalData).forEach(([nome, v]) => {
+      personDays[nome] = [...v.days].sort();
+    });
+
+    let html = '';
+
+    if (sorted.length === 0) {
+      html = '<div style="color:var(--muted);font-size:14px">Nenhum dado ainda.</div>';
+    } else {
+      html += `<div class="result-section">
+        <div class="result-section-title">Dias por votos</div>`;
+      sorted.forEach(({ label, people }) => {
+        html += `
+          <div class="result-day-row">
+            <div class="result-day-label">${label}</div>
+            <div class="result-day-names">${people.map(p => esc(p)).join(', ')}</div>
+            <div class="result-count-badge">${people.length}</div>
+          </div>`;
+      });
+      html += `</div>`;
+
+      html += `<div class="result-section">
+        <div class="result-section-title">Quem marcou o quê</div>`;
+      Object.entries(personDays).sort().forEach(([nome, days]) => {
+        const labels = days.map(ds => {
+          const [y, m, d] = ds.split('-');
+          return `${parseInt(d)}/${parseInt(m)}`;
+        }).join(', ');
+        html += `
+          <div class="result-person-row">
+            <div class="person-badge" style="background:${getColor(nome)}"></div>
+            <div class="result-person-name">${esc(nome)}</div>
+            <div class="result-person-days">${labels || 'nenhum'}</div>
+          </div>`;
+      });
+      html += `</div>`;
+    }
+
+    content.innerHTML = html;
+    modal.classList.add('open');
+  }
+
+  function closeResultados() {
+    document.getElementById('modalResultados').classList.remove('open');
+  }
+
+  function closeResultadosOutside(e) {
+    if (e.target === document.getElementById('modalResultados')) closeResultados();
   }
 
   function markReady() {
@@ -965,6 +1157,7 @@
     document.getElementById('nameSection').style.display = 'block';
     document.getElementById('calendarWrap').style.display = 'none';
     document.getElementById('headerUser').style.display = 'none';
+    document.getElementById('btnResultados').style.display = 'none';
     document.getElementById('readyWrap').style.display = 'none';
     document.getElementById('nameInput').value = '';
   }
@@ -974,7 +1167,14 @@
   });
 
   (async () => {
-    await Promise.all([loadMonth(), loadAllData()]);
+    const hint = document.getElementById('hint');
+    try {
+      await Promise.all([loadMonth(), loadAllData()]);
+    } catch (e) {
+      // Supabase pode estar acordando (free tier pausa após 7 dias sem uso)
+      hint.textContent = 'Reconectando ao servidor… tente recarregar em 30 segundos.';
+      hint.className = 'hint error';
+    }
     const total = Object.keys(allData).length;
     if (total > 0) {
       document.getElementById('nameCount').textContent = `${total} pessoa${total > 1 ? 's' : ''} já marcaram disponibilidade.`;
