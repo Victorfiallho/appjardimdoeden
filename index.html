@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confraternização — Quando todo mundo vai estar?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0B0C0E;
+      --surface:    #16181B;
+      --border:     #24282D;
+      --text:       #F9FAFB;
+      --muted:      #6B7280;
+      --dim:        #374151;
+      --accent:     #F3C63F;
+      --accent-dim: rgba(243,198,63,0.10);
+      --radius:     10px;
+      --t:          0.15s ease;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px 72px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ───────────────────────────────────────── */
+    .header {
+      width: 100%;
+      max-width: 680px;
+      padding: 40px 0 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header-eyebrow {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .header-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.6px;
+      line-height: 1.2;
+    }
+    .header-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 6px 14px 6px 10px;
+      transition: border-color var(--t);
+    }
+    .header-user:hover { border-color: #3A3F47; }
+    .user-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .btn-link {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 11px;
+      text-decoration: underline;
+      padding: 0;
+      margin-left: 4px;
+      transition: color var(--t);
+    }
+    .btn-link:hover { color: var(--text); }
+
+    /* ── NAME ENTRY ───────────────────────────────────── */
+    .name-section {
+      width: 100%;
+      max-width: 460px;
+      margin-bottom: 48px;
+    }
+    .name-label {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .name-row { display: flex; gap: 10px; }
+    .name-input {
+      flex: 1;
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color var(--t), box-shadow var(--t);
+    }
+    .name-input::placeholder { color: #4B5563; }
+    .name-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(243,198,63,0.12);
+    }
+    .btn-enter {
+      background: var(--accent);
+      color: #0B0C0E;
+      border: none;
+      border-radius: var(--radius);
+      padding: 14px 22px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: 'Inter', sans-serif;
+      min-height: 50px;
+      transition: opacity var(--t), transform 0.1s ease;
+      letter-spacing: 0.2px;
+    }
+    .btn-enter:hover { opacity: 0.88; }
+    .btn-enter:active { transform: scale(0.97); }
+    .name-count { margin-top: 14px; font-size: 13px; color: var(--dim); }
+
+    /* ── CALENDAR ─────────────────────────────────────── */
+    .calendar-wrap { width: 100%; max-width: 680px; }
+
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .month-nav button {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 0;
+      font-size: 16px;
+      min-height: 34px;
+      min-width: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--t), border-color var(--t), color var(--t);
+    }
+    .month-nav button:hover { background: var(--surface); border-color: #3A3F47; color: var(--text); }
+    .month-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      min-width: 138px;
+      text-align: center;
+    }
+
+    .dow-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+      margin-bottom: 4px;
+    }
+    .dow-cell {
+      text-align: center;
+      font-size: 10px;
+      color: var(--text);
+      opacity: 0.35;
+      padding: 6px 0;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+    }
+    .cal-cell {
+      position: relative;
+      aspect-ratio: 1;
+      min-height: 44px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--t), border-color var(--t), box-shadow var(--t);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cal-cell:active { opacity: 0.7; }
+    @media (hover: hover) {
+      .cal-cell:not(.empty):hover {
+        background: #1C1F23;
+        border-color: #3A3F47;
+      }
+    }
+    .cal-cell.mine {
+      background: var(--accent-dim);
+      border: 1.5px solid var(--accent);
+    }
+    .cal-cell.selected {
+      outline: 2px solid rgba(255,255,255,0.07);
+      outline-offset: -1px;
+    }
+    .cal-cell.today { border-color: rgba(243,198,63,0.45); }
+    .cal-cell.today .day-num { color: var(--accent); }
+    .cal-cell.best { border-color: rgba(243,198,63,0.22); }
+    .cal-cell.empty { background: transparent; border-color: transparent; cursor: default; }
+
+    .day-num {
+      font-size: 13px;
+      font-weight: 500;
+      color: #F9FAFB;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .cal-cell.mine .day-num { color: var(--accent); font-weight: 600; }
+
+    .dots {
+      display: flex;
+      gap: 2px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 80%;
+      margin-top: 4px;
+    }
+    .dot { width: 5px; height: 5px; border-radius: 50%; }
+    .dot-extra { font-size: 8px; color: var(--muted); line-height: 5px; }
+
+    /* ── TOOLTIP (desktop hover only) ────────────────── */
+    .tooltip {
+      display: none;
+      position: absolute;
+      bottom: 110%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1E2126;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      z-index: 20;
+      min-width: 120px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+      pointer-events: none;
+    }
+    @media (hover: hover) { .cal-cell:hover .tooltip { display: block; } }
+    .tooltip-count {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .tooltip-person {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text);
+      margin-bottom: 3px;
+      white-space: nowrap;
+    }
+    .tooltip-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── PANELS ───────────────────────────────────────── */
+    .panel {
+      width: 100%;
+      max-width: 680px;
+      margin-top: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+    .panel-eyebrow {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* Day detail */
+    .day-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .day-panel-date {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .day-panel-mine {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+    .day-panel-mine.marked {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid rgba(243,198,63,0.2);
+    }
+    .day-panel-mine.unmarked {
+      background: #1C1F23;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .day-panel-people { display: flex; flex-direction: column; gap: 8px; }
+    .day-panel-person { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+    .day-panel-empty { font-size: 13px; color: var(--muted); }
+
+    /* Ranking */
+    .rank-list { display: flex; flex-direction: column; }
+    .rank-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .rank-row:last-child { border-bottom: none; }
+    .rank-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      min-width: 22px;
+      text-align: center;
+    }
+    .rank-row.gold .rank-num { color: var(--accent); }
+    .rank-date-block { flex: 1; min-width: 0; }
+    .rank-date-day {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .rank-row.gold .rank-date-day { color: var(--accent); }
+    .rank-date-dow {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .rank-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 5px;
+    }
+    .rank-dots { display: flex; gap: 3px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+    .rank-bar-wrap {
+      width: 64px;
+      height: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .rank-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--muted);
+      transition: width 0.4s ease;
+    }
+    .rank-row.gold .rank-bar-fill { background: var(--accent); }
+    .rank-count { font-size: 11px; color: var(--muted); white-space: nowrap; }
+    .rank-row.gold .rank-count { color: var(--accent); }
+
+    /* People panel */
+    .people-list { display: flex; flex-wrap: wrap; gap: 10px 24px; }
+    .person-item { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
+    .person-item.me { color: var(--text); }
+    .person-badge { width: 7px; height: 7px; border-radius: 50%; }
+    .person-count { font-size: 11px; color: var(--dim); }
+
+    /* ── HINT / FEEDBACK ──────────────────────────────── */
+    .hint {
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--dim);
+      text-align: center;
+      transition: color 0.25s;
+      min-height: 18px;
+    }
+    .hint.error  { color: #F87171; }
+    .hint.success { color: #4ADE80; }
+    .loading { color: var(--muted); font-size: 14px; }
+
+    /* ── RESPONSIVIDADE ───────────────────────────────── */
+    @media (max-width: 520px) {
+      body { padding: 0 10px 64px; }
+      .header { padding: 24px 0 16px; margin-bottom: 24px; }
+      .header-title { font-size: 22px; }
+      .name-section { max-width: 100%; }
+      .name-row { flex-direction: column; }
+      .btn-enter { width: 100%; }
+      .cal-cell { border-radius: 8px; }
+      .day-num { font-size: 12px; }
+      .panel { padding: 14px 16px; }
+      .cal-grid { gap: 2px; }
+      .dow-row  { gap: 2px; }
+      .rank-bar-wrap { width: 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header-eyebrow">confraternização Jardim do Éden</div>
+    <div class="header-title">Quando todos<br>estarão na cidade?</div>
+  </div>
+  <div class="header-user" id="headerUser" style="display:none">
+    <div class="user-dot" id="headerDot"></div>
+    <span id="headerName"></span>
+    <button class="btn-link" onclick="resetUser()">trocar</button>
+  </div>
+</div>
+
+<!-- NAME ENTRY -->
+<div class="name-section" id="nameSection">
+  <div class="name-label">Como você quer ser identificado?</div>
+  <div class="name-row">
+    <input class="name-input" id="nameInput" type="text" placeholder="Seu nome ou apelido" maxlength="30" />
+    <button class="btn-enter" onclick="enterApp()">Entrar →</button>
+  </div>
+  <div class="name-count" id="nameCount"></div>
+</div>
+
+<!-- CALENDAR -->
+<div class="calendar-wrap" id="calendarWrap" style="display:none">
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">‹</button>
+    <div class="month-title" id="monthTitle"></div>
+    <button onclick="changeMonth(1)">›</button>
+  </div>
+  <div class="dow-row" id="dowRow"></div>
+  <div class="cal-grid" id="calGrid"></div>
+
+  <!-- Painel de detalhe do dia (mobile-friendly, substitui o tooltip) -->
+  <div id="dayPanel" style="display:none" class="panel">
+    <div class="day-panel-header">
+      <div class="day-panel-date" id="dayPanelDate"></div>
+      <div class="day-panel-mine" id="dayPanelMine"></div>
+    </div>
+    <div class="day-panel-people" id="dayPanelPeople"></div>
+  </div>
+
+  <div id="rankingPanel" style="display:none" class="panel">
+    <div class="panel-eyebrow">melhores datas</div>
+    <div class="rank-list" id="rankingList"></div>
+  </div>
+
+  <div id="peoplePanel" style="display:none" class="panel">
+    <div class="panel-eyebrow">quem respondeu</div>
+    <div class="people-list" id="peopleList"></div>
+  </div>
+
+  <div class="hint" id="hint">Toque em um dia para marcar sua disponibilidade</div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://wqgmwrqoikzjdougajku.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxZ213cnFvaWt6amRvdWdhamt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMjkzMTgsImV4cCI6MjA5NjYwNTMxOH0.VZdEWyifXUzuvjA52NB2mOtYUVbmOe9RDWAiXrYEuGI';
+  const TABLE = 'disponibilidade';
+
+  /*
+    SQL para criar a tabela no Supabase (SQL Editor):
+
+    create table disponibilidade (
+      id uuid primary key default gen_random_uuid(),
+      nome text not null,
+      dia date not null,
+      created_at timestamptz default now(),
+      unique(nome, dia)
+    );
+
+    alter table disponibilidade enable row level security;
+    create policy "public read" on disponibilidade for select using (true);
+    create policy "public insert" on disponibilidade for insert with check (true);
+    create policy "public delete" on disponibilidade for delete using (true);
+  */
+
+  const COLORS = [
+    '#E8C547','#E87B47','#47C5E8','#A847E8','#E84772',
+    '#47E8A0','#E84747','#7BE847','#E8479A','#47A0E8','#C547E8'
+  ];
+  const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                  'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const DOWS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+  let currentUser = sessionStorage.getItem('confra-name') || '';
+  let currentYear = new Date().getFullYear();
+  let currentMonth = new Date().getMonth();
+  let allData = {};    // apenas o mês visível (calendário)
+  let globalData = {}; // todos os meses (ranking)
+  let colorMap = {};
+  let selectedDay = null;
+  let isSaving = false;
+
+  // Sanitiza strings antes de inserir no HTML — previne XSS
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function loadAllData() {
+    const rows = await sbFetch(`${TABLE}?select=nome,dia`);
+    globalData = {};
+    (rows || []).forEach(row => {
+      if (!globalData[row.nome]) globalData[row.nome] = { days: new Set() };
+      globalData[row.nome].days.add(row.dia);
+      getColor(row.nome); // garante que a cor é pré-calculada
+    });
+  }
+
+  async function sbFetch(path, options = {}) {
+    const { headers: extraHeaders, ...restOptions } = options;
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+        ...extraHeaders,
+      },
+      ...restOptions,
+    });
+    if (!res.ok && res.status !== 204) {
+      const err = await res.text();
+      throw new Error(`HTTP ${res.status}: ${err}`);
+    }
+    if (res.status === 204 || res.status === 201) return null;
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  async function loadMonth() {
+    const from = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-01`;
+    const lastDay = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const to = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+
+    const rows = await sbFetch(`${TABLE}?dia=gte.${from}&dia=lte.${to}&select=nome,dia`);
+
+    allData = {};
+    (rows || []).forEach(row => {
+      if (!allData[row.nome]) allData[row.nome] = { days: new Set() };
+      allData[row.nome].days.add(row.dia);
+    });
+
+    Object.keys(allData).forEach(nome => getColor(nome));
+  }
+
+  async function toggleDay(dateStr) {
+    if (!currentUser) return;
+    const myDays = allData[currentUser]?.days || new Set();
+
+    if (myDays.has(dateStr)) {
+      await sbFetch(`${TABLE}?nome=eq.${encodeURIComponent(currentUser)}&dia=eq.${dateStr}`, { method: 'DELETE' });
+      myDays.delete(dateStr);
+    } else {
+      await sbFetch(TABLE, {
+        method: 'POST',
+        headers: { 'Prefer': 'resolution=ignore-duplicates' },
+        body: JSON.stringify({ nome: currentUser, dia: dateStr }),
+      });
+      myDays.add(dateStr);
+    }
+
+    if (!allData[currentUser]) allData[currentUser] = { days: myDays };
+    else allData[currentUser].days = myDays;
+
+    if (!colorMap[currentUser]) colorMap[currentUser] = COLORS[Object.keys(colorMap).length % COLORS.length];
+
+    // Espelha a mudança no globalData para o ranking não perder o estado
+    if (!globalData[currentUser]) globalData[currentUser] = { days: new Set() };
+    if (myDays.has(dateStr)) globalData[currentUser].days.add(dateStr);
+    else globalData[currentUser].days.delete(dateStr);
+
+    renderCalendar();
+  }
+
+  function getColor(nome) {
+    if (colorMap[nome]) return colorMap[nome];
+    // Hash determinístico: mesmo nome sempre recebe a mesma cor, independente da ordem de carga
+    let h = 0;
+    for (let i = 0; i < nome.length; i++) h = (h * 31 + nome.charCodeAt(i)) >>> 0;
+    colorMap[nome] = COLORS[h % COLORS.length];
+    return colorMap[nome];
+  }
+
+  function toDateStr(year, month, day) {
+    return `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  }
+
+  function getPeopleOnDay(dateStr) {
+    return Object.entries(allData)
+      .filter(([, v]) => v.days.has(dateStr))
+      .map(([k]) => k);
+  }
+
+  function renderDOW() {
+    document.getElementById('dowRow').innerHTML = DOWS.map(d => `<div class="dow-cell">${d}</div>`).join('');
+  }
+
+  function renderDayPanel(dateStr) {
+    if (!dateStr) { document.getElementById('dayPanel').style.display = 'none'; return; }
+
+    const people = getPeopleOnDay(dateStr);
+    const mine = allData[currentUser]?.days?.has(dateStr) || false;
+    const [y, m, d] = dateStr.split('-');
+
+    document.getElementById('dayPanelDate').textContent = `${parseInt(d)} de ${MONTHS[parseInt(m) - 1]}`;
+
+    const mineEl = document.getElementById('dayPanelMine');
+    mineEl.textContent = mine ? 'Você está' : 'Você não está';
+    mineEl.className = `day-panel-mine ${mine ? 'marked' : 'unmarked'}`;
+
+    const peopleEl = document.getElementById('dayPanelPeople');
+    if (people.length === 0) {
+      peopleEl.innerHTML = '<div class="day-panel-empty">Ninguém marcou este dia ainda.</div>';
+    } else {
+      peopleEl.innerHTML = people.map(p => `
+        <div class="day-panel-person">
+          <div class="tooltip-dot" style="background:${getColor(p)}"></div>
+          ${p === currentUser ? `<strong>${esc(p)}</strong>` : esc(p)}
+        </div>`).join('');
+    }
+
+    document.getElementById('dayPanel').style.display = 'block';
+  }
+
+  const RANKING_THRESHOLD = 5;
+  const RANKING_MAX_DOTS = 6;
+
+  function renderRanking() {
+    // Agrega votos de todos os meses a partir do globalData
+    const dayCounts = {};
+    Object.entries(globalData).forEach(([nome, v]) => {
+      v.days.forEach(ds => {
+        if (!dayCounts[ds]) dayCounts[ds] = [];
+        dayCounts[ds].push(nome);
+      });
+    });
+
+    const ranked = Object.entries(dayCounts)
+      .filter(([, people]) => people.length > RANKING_THRESHOLD)
+      .map(([ds, people]) => {
+        const [y, m, d] = ds.split('-');
+        const dateObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+        return { ds, people, d: parseInt(d), month: parseInt(m) - 1, dow: DOWS[dateObj.getDay()] };
+      })
+      .sort((a, b) => b.people.length - a.people.length);
+
+    const panel = document.getElementById('rankingPanel');
+    if (ranked.length === 0) { panel.style.display = 'none'; return; }
+
+    panel.style.display = 'block';
+    const max = ranked[0].people.length;
+
+    document.getElementById('rankingList').innerHTML = ranked.map((item, i) => {
+      const isGold = item.people.length === max;
+      const pct = Math.round((item.people.length / max) * 100);
+      const visible = item.people.slice(0, RANKING_MAX_DOTS);
+      const overflow = item.people.length - RANKING_MAX_DOTS;
+      const dotsHtml = visible.map(p =>
+        `<div class="dot" style="background:${getColor(p)}" title="${esc(p)}"></div>`
+      ).join('') + (overflow > 0 ? `<span class="dot-extra">+${overflow}</span>` : '');
+
+      return `
+        <div class="rank-row ${isGold ? 'gold' : ''}">
+          <div class="rank-num">#${i + 1}</div>
+          <div class="rank-date-block">
+            <div class="rank-date-day">${item.d} de ${MONTHS[item.month]}</div>
+            <div class="rank-date-dow">${item.dow}</div>
+          </div>
+          <div class="rank-right">
+            <div class="rank-dots">
+              ${dotsHtml}
+              <span class="rank-count">${item.people.length}p</span>
+            </div>
+            <div class="rank-bar-wrap">
+              <div class="rank-bar-fill" style="width:${pct}%"></div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderCalendar() {
+    document.getElementById('monthTitle').textContent = `${MONTHS[currentMonth]} ${currentYear}`;
+
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const today = new Date();
+
+    let maxCount = 0;
+    const dayCounts = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      const ds = toDateStr(currentYear, currentMonth, d);
+      const c = getPeopleOnDay(ds).length;
+      dayCounts.push({ d, c, ds });
+      if (c > maxCount) maxCount = c;
+    }
+    const bestDays = maxCount > 1 ? dayCounts.filter(x => x.c === maxCount) : [];
+    const myDays = allData[currentUser]?.days || new Set();
+
+    let html = '';
+    let blanks = firstDay;
+    while (blanks-- > 0) html += '<div class="cal-cell empty"></div>';
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const ds = toDateStr(currentYear, currentMonth, d);
+      const people = getPeopleOnDay(ds);
+      const mine = myDays.has(ds);
+      const isToday = today.getFullYear() === currentYear && today.getMonth() === currentMonth && today.getDate() === d;
+      const isBest = bestDays.some(x => x.d === d);
+      const isSelected = ds === selectedDay;
+
+      let cls = 'cal-cell';
+      if (mine) cls += ' mine';
+      if (isToday) cls += ' today';
+      if (isBest) cls += ' best';
+      if (isSelected) cls += ' selected';
+
+      const visiblePeople = people.slice(0, 4);
+      const extra = people.length - 4;
+      const dotsHtml = people.length > 0 ? `
+        <div class="dots">
+          ${visiblePeople.map(p => `<div class="dot" style="background:${getColor(p)}"></div>`).join('')}
+          ${extra > 0 ? `<span class="dot-extra">+${extra}</span>` : ''}
+        </div>` : '';
+
+      const tooltipHtml = people.length > 0 ? `
+        <div class="tooltip">
+          <div class="tooltip-count">${people.length} pessoa${people.length > 1 ? 's' : ''}</div>
+          ${people.map(p => `
+            <div class="tooltip-person">
+              <div class="tooltip-dot" style="background:${getColor(p)}"></div>
+              ${esc(p)}
+            </div>`).join('')}
+        </div>` : '';
+
+      html += `
+        <div class="${cls}" onclick="handleDayClick('${ds}')">
+          <div class="day-num">${d}</div>
+          ${dotsHtml}
+          ${tooltipHtml}
+        </div>`;
+    }
+
+    document.getElementById('calGrid').innerHTML = html;
+
+    renderRanking();
+
+    const names = Object.keys(allData);
+    const peoplePanel = document.getElementById('peoplePanel');
+    if (names.length > 0) {
+      peoplePanel.style.display = 'block';
+      document.getElementById('peopleList').innerHTML = names.map(n => {
+        const count = [...(allData[n]?.days || [])].filter(k => k.startsWith(`${currentYear}-${String(currentMonth+1).padStart(2,'0')}`)).length;
+        return `
+          <div class="person-item ${n === currentUser ? 'me' : ''}">
+            <div class="person-badge" style="background:${getColor(n)}"></div>
+            ${esc(n)}
+            <span class="person-count">${count > 0 ? count + 'd' : 'nenhum'}</span>
+          </div>`;
+      }).join('');
+    } else {
+      peoplePanel.style.display = 'none';
+    }
+
+    if (selectedDay) renderDayPanel(selectedDay);
+  }
+
+  let hintResetTimer = null;
+
+  async function handleDayClick(dateStr) {
+    if (isSaving) return; // bloqueia cliques enquanto há operação em andamento
+    isSaving = true;
+    selectedDay = dateStr;
+    const hint = document.getElementById('hint');
+    clearTimeout(hintResetTimer);
+    hint.textContent = 'Salvando...';
+    hint.className = 'hint';
+    try {
+      await toggleDay(dateStr);
+      hint.textContent = '✓ Salvo automaticamente';
+      hint.className = 'hint success';
+      hintResetTimer = setTimeout(() => {
+        hint.textContent = 'Toque em um dia para marcar sua disponibilidade';
+        hint.className = 'hint';
+      }, 2500);
+    } catch (e) {
+      hint.textContent = 'Erro: ' + e.message;
+      hint.className = 'hint error';
+      renderCalendar();
+    } finally {
+      isSaving = false;
+    }
+    renderDayPanel(dateStr);
+  }
+
+  async function changeMonth(dir) {
+    selectedDay = null;
+    currentMonth += dir;
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    document.getElementById('calGrid').innerHTML = '<div class="loading" style="grid-column:1/-1;text-align:center;padding:20px">Carregando...</div>';
+    document.getElementById('dayPanel').style.display = 'none';
+    await loadMonth();
+    renderCalendar();
+  }
+
+  async function enterApp() {
+    const input = document.getElementById('nameInput').value.trim();
+    if (!input) return;
+    currentUser = input;
+    sessionStorage.setItem('confra-name', currentUser);
+    if (!colorMap[currentUser]) colorMap[currentUser] = COLORS[Object.keys(colorMap).length % COLORS.length];
+    showCalendar();
+  }
+
+  function showCalendar() {
+    document.getElementById('nameSection').style.display = 'none';
+    document.getElementById('calendarWrap').style.display = 'block';
+    document.getElementById('headerUser').style.display = 'flex';
+    document.getElementById('headerName').textContent = currentUser;
+    document.getElementById('headerDot').style.background = getColor(currentUser);
+    renderDOW();
+    renderCalendar();
+  }
+
+  function resetUser() {
+    currentUser = '';
+    selectedDay = null;
+    sessionStorage.removeItem('confra-name');
+    document.getElementById('nameSection').style.display = 'block';
+    document.getElementById('calendarWrap').style.display = 'none';
+    document.getElementById('headerUser').style.display = 'none';
+    document.getElementById('nameInput').value = '';
+  }
+
+  document.getElementById('nameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') enterApp();
+  });
+
+  (async () => {
+    await Promise.all([loadMonth(), loadAllData()]);
+    const total = Object.keys(allData).length;
+    if (total > 0) {
+      document.getElementById('nameCount').textContent = `${total} pessoa${total > 1 ? 's' : ''} já marcaram disponibilidade.`;
+    }
+    if (currentUser) {
+      if (!colorMap[currentUser]) colorMap[currentUser] = COLORS[Object.keys(colorMap).length % COLORS.length];
+      showCalendar();
+    }
+  })();
+</script>
+</body>
+</html>
