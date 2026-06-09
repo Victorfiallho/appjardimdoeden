@@ -1077,7 +1077,11 @@
       });
     });
 
+    const totalPeople = Object.keys(globalData).length;
+
+    // Só mostra dias acima do threshold (mesmo critério do ranking)
     const sorted = Object.entries(dayCounts)
+      .filter(([, people]) => people.length > RANKING_THRESHOLD)
       .map(([ds, people]) => {
         const [y, m, d] = ds.split('-');
         const dateObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
@@ -1085,19 +1089,22 @@
       })
       .sort((a, b) => b.people.length - a.people.length);
 
-    // Lista de pessoas com seus dias
-    const personDays = {};
-    Object.entries(globalData).forEach(([nome, v]) => {
-      personDays[nome] = [...v.days].sort();
-    });
+    // Pessoas: só contagem total de dias marcados
+    const personSummary = Object.entries(globalData)
+      .map(([nome, v]) => ({ nome, count: v.days.size }))
+      .sort((a, b) => b.count - a.count);
 
     let html = '';
 
     if (sorted.length === 0) {
-      html = '<div style="color:var(--muted);font-size:14px">Nenhum dado ainda.</div>';
+      const needed = RANKING_THRESHOLD + 1;
+      html = `<div style="color:var(--muted);font-size:14px;margin-bottom:20px">
+        Nenhum dia atingiu ${needed} votos ainda.<br>
+        <span style="font-size:12px;color:var(--dim)">${totalPeople} pessoa${totalPeople !== 1 ? 's' : ''} responderam até agora.</span>
+      </div>`;
     } else {
       html += `<div class="result-section">
-        <div class="result-section-title">Dias por votos</div>`;
+        <div class="result-section-title">Melhores dias (acima de ${RANKING_THRESHOLD} votos)</div>`;
       sorted.forEach(({ label, people }) => {
         html += `
           <div class="result-day-row">
@@ -1107,23 +1114,20 @@
           </div>`;
       });
       html += `</div>`;
-
-      html += `<div class="result-section">
-        <div class="result-section-title">Quem marcou o quê</div>`;
-      Object.entries(personDays).sort().forEach(([nome, days]) => {
-        const labels = days.map(ds => {
-          const [y, m, d] = ds.split('-');
-          return `${parseInt(d)}/${parseInt(m)}`;
-        }).join(', ');
-        html += `
-          <div class="result-person-row">
-            <div class="person-badge" style="background:${getColor(nome)}"></div>
-            <div class="result-person-name">${esc(nome)}</div>
-            <div class="result-person-days">${labels || 'nenhum'}</div>
-          </div>`;
-      });
-      html += `</div>`;
     }
+
+    // Seção de pessoas sempre aparece
+    html += `<div class="result-section">
+      <div class="result-section-title">Quem respondeu (${totalPeople})</div>`;
+    personSummary.forEach(({ nome, count }) => {
+      html += `
+        <div class="result-person-row">
+          <div class="person-badge" style="background:${getColor(nome)}"></div>
+          <div class="result-person-name">${esc(nome)}</div>
+          <div class="result-person-days">${count > 0 ? count + ' dia' + (count !== 1 ? 's' : '') : 'nenhum'}</div>
+        </div>`;
+    });
+    html += `</div>`;
 
     content.innerHTML = html;
     modal.classList.add('open');
